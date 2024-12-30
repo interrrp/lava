@@ -12,14 +12,14 @@ mod app;
 
 #[derive(Parser, Debug)]
 struct Args {
-    game_path: PathBuf,
+    app_dir: PathBuf,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let mut game = App::from_app_dir(&args.game_path)?;
-    game.run()?;
+    let mut app = App::from_dir(&args.app_dir);
+    app.run()?;
 
     Ok(())
 }
