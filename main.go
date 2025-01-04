@@ -4,7 +4,7 @@ import "github.com/alexflint/go-arg"
 
 func main() {
 	var args struct {
-		AppDir string `arg:"required"`
+		AppDir string `arg:"required,positional"`
 	}
 	arg.MustParse(&args)
 
