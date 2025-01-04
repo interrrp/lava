@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import "github.com/alexflint/go-arg"
 
 func main() {
-	fmt.Println("Hello, world!")
+	var args struct {
+		AppDir string `arg:"required"`
+	}
+	arg.MustParse(&args)
+
+	game := newGame(args.AppDir)
+	defer game.close()
+
+	if err := game.run(); err != nil {
+		panic(err)
+	}
 }
