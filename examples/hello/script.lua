@@ -7,5 +7,6 @@ end
 
 function frame()
     draw.clear(black)
-    draw.text("Hello, world", 16, 16, 20, white)
+    draw.rect(16, 14, 4, 24, white)
+    draw.text("Hello, world", 32, 16, 20, white)
 end

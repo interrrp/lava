@@ -32,6 +32,17 @@ func createDrawFunctions(state *lua.LState) {
 		return 0
 	}))
 
+	draw.RawSetString("rect", state.NewFunction(func(state *lua.LState) int {
+		rl.DrawRectangle(
+			int32(state.ToInt(1)),
+			int32(state.ToInt(2)),
+			int32(state.ToInt(3)),
+			int32(state.ToInt(4)),
+			tableToColor(state.ToTable(5)),
+		)
+		return 0
+	}))
+
 	state.SetGlobal("draw", draw)
 }
 
