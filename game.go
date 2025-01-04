@@ -43,7 +43,42 @@ func createDrawFunctions(state *lua.LState) {
 		return 0
 	}))
 
+	draw.RawSetString("setFps", state.NewFunction(func(state *lua.LState) int {
+		rl.SetTargetFPS(int32(state.ToInt(1)))
+		return 0
+	}))
+
 	state.SetGlobal("draw", draw)
+}
+
+func createInputFunctions(state *lua.LState) {
+	input := state.NewTable()
+
+	input.RawSetString("isKeyPressed", state.NewFunction(func(state *lua.LState) int {
+		key := state.ToInt(1)
+		state.Push(lua.LBool(rl.IsKeyPressed(int32(key))))
+		return 1
+	}))
+
+	input.RawSetString("isKeyDown", state.NewFunction(func(state *lua.LState) int {
+		key := state.ToInt(1)
+		state.Push(lua.LBool(rl.IsKeyDown(int32(key))))
+		return 1
+	}))
+
+	input.RawSetString("isKeyReleased", state.NewFunction(func(state *lua.LState) int {
+		key := state.ToInt(1)
+		state.Push(lua.LBool(rl.IsKeyReleased(int32(key))))
+		return 1
+	}))
+
+	input.RawSetString("isKeyUp", state.NewFunction(func(state *lua.LState) int {
+		key := state.ToInt(1)
+		state.Push(lua.LBool(rl.IsKeyUp(int32(key))))
+		return 1
+	}))
+
+	state.SetGlobal("input", input)
 }
 
 func gatherErrors(errors ...error) error {
@@ -71,6 +106,7 @@ func tableToColor(table *lua.LTable) rl.Color {
 func newGame(appDir string) game {
 	luaState := lua.NewState()
 	createDrawFunctions(luaState)
+	createInputFunctions(luaState)
 
 	return game{lua: luaState, appDir: appDir}
 }
@@ -89,6 +125,10 @@ func (g *game) run() error {
 		return err
 	}
 
+	if err := g.lua.DoString("load()"); err != nil {
+		return err
+	}
+
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 		if err := g.lua.DoString("frame()"); err != nil {
@@ -97,5 +137,5 @@ func (g *game) run() error {
 		rl.EndDrawing()
 	}
 
-	return g.lua.DoString("load()")
+	return nil
 }
