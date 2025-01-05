@@ -15,7 +15,7 @@ type game struct {
 
 func newGame(appDir string) game {
 	luaState := lua.NewState()
-	createStdlib(luaState)
+	createApi(luaState)
 
 	return game{
 		lua:    luaState,

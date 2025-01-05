@@ -7,24 +7,24 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func createStdlib(state *lua.LState) {
-	stdlib := state.NewTable()
-	state.SetGlobal("lava", stdlib)
+func createApi(state *lua.LState) {
+	api := state.NewTable()
+	state.SetGlobal("lava", api)
 
 	window := state.NewTable()
-	stdlib.RawSetString("window", window)
+	api.RawSetString("window", window)
 	window.RawSetString("setFps", state.NewFunction(windowSetFps))
 	window.RawSetString("setTitle", state.NewFunction(windowSetTitle))
 	window.RawSetString("deltaTime", state.NewFunction(windowDeltaTime))
 
 	draw := state.NewTable()
-	stdlib.RawSetString("draw", draw)
+	api.RawSetString("draw", draw)
 	draw.RawSetString("clear", state.NewFunction(drawClear))
 	draw.RawSetString("text", state.NewFunction(drawText))
 	draw.RawSetString("rect", state.NewFunction(drawRect))
 
 	input := state.NewTable()
-	stdlib.RawSetString("input", input)
+	api.RawSetString("input", input)
 	input.RawSetString("isKeyPressed", state.NewFunction(isKeyPressed))
 	input.RawSetString("isKeyDown", state.NewFunction(isKeyDown))
 	input.RawSetString("isKeyReleased", state.NewFunction(isKeyReleased))
