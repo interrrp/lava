@@ -11,12 +11,17 @@ func createStdlib(state *lua.LState) {
 	stdlib := state.NewTable()
 	state.SetGlobal("lava", stdlib)
 
+	window := state.NewTable()
+	stdlib.RawSetString("window", window)
+	window.RawSetString("setFps", state.NewFunction(windowSetFps))
+	window.RawSetString("setTitle", state.NewFunction(windowSetTitle))
+	window.RawSetString("deltaTime", state.NewFunction(windowDeltaTime))
+
 	draw := state.NewTable()
 	stdlib.RawSetString("draw", draw)
 	draw.RawSetString("clear", state.NewFunction(drawClear))
 	draw.RawSetString("text", state.NewFunction(drawText))
 	draw.RawSetString("rect", state.NewFunction(drawRect))
-	draw.RawSetString("setFps", state.NewFunction(drawSetFps))
 
 	input := state.NewTable()
 	stdlib.RawSetString("input", input)
@@ -24,6 +29,16 @@ func createStdlib(state *lua.LState) {
 	input.RawSetString("isKeyDown", state.NewFunction(isKeyDown))
 	input.RawSetString("isKeyReleased", state.NewFunction(isKeyReleased))
 	input.RawSetString("isKeyUp", state.NewFunction(isKeyUp))
+}
+
+func windowSetFps(state *lua.LState) int {
+	rl.SetTargetFPS(int32(state.ToInt(1)))
+	return 0
+}
+
+func windowSetTitle(state *lua.LState) int {
+	rl.SetWindowTitle(state.ToString(1))
+	return 0
 }
 
 func drawClear(state *lua.LState) int {
@@ -53,9 +68,9 @@ func drawRect(state *lua.LState) int {
 	return 0
 }
 
-func drawSetFps(state *lua.LState) int {
-	rl.SetTargetFPS(int32(state.ToInt(1)))
-	return 0
+func windowDeltaTime(state *lua.LState) int {
+	state.Push(lua.LNumber(rl.GetFrameTime()))
+	return 1
 }
 
 func isKeyPressed(state *lua.LState) int {

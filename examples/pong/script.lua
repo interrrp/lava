@@ -12,10 +12,15 @@ local KEYS = {
     DOWN = 264
 }
 
+local SPEED = {
+    PADDLE = 200,
+    BALL = 200
+}
+
 local gameState = {
     player1 = { y = 140, score = 0 },
     player2 = { y = 140, score = 0 },
-    ball = { x = 320, y = 180, speedX = 5, speedY = 5 }
+    ball = { x = 320, y = 180, speedX = SPEED.BALL, speedY = SPEED.BALL }
 }
 
 local function resetBall()
@@ -24,23 +29,25 @@ local function resetBall()
 end
 
 local function movePaddles()
+    local deltaTime = lava.window.deltaTime()
     if lava.input.isKeyDown(KEYS.W) and gameState.player1.y > 0 then
-        gameState.player1.y = gameState.player1.y - 5
+        gameState.player1.y = gameState.player1.y - SPEED.PADDLE * deltaTime
     end
     if lava.input.isKeyDown(KEYS.S) and gameState.player1.y < 280 then
-        gameState.player1.y = gameState.player1.y + 5
+        gameState.player1.y = gameState.player1.y + SPEED.PADDLE * deltaTime
     end
     if lava.input.isKeyDown(KEYS.UP) and gameState.player2.y > 0 then
-        gameState.player2.y = gameState.player2.y - 5
+        gameState.player2.y = gameState.player2.y - SPEED.PADDLE * deltaTime
     end
     if lava.input.isKeyDown(KEYS.DOWN) and gameState.player2.y < 280 then
-        gameState.player2.y = gameState.player2.y + 5
+        gameState.player2.y = gameState.player2.y + SPEED.PADDLE * deltaTime
     end
 end
 
 local function moveBall()
-    gameState.ball.x = gameState.ball.x + gameState.ball.speedX
-    gameState.ball.y = gameState.ball.y + gameState.ball.speedY
+    local deltaTime = lava.window.deltaTime()
+    gameState.ball.x = gameState.ball.x + gameState.ball.speedX * deltaTime
+    gameState.ball.y = gameState.ball.y + gameState.ball.speedY * deltaTime
 
     if gameState.ball.y <= 0 or gameState.ball.y >= 350 then
         gameState.ball.speedY = -gameState.ball.speedY
@@ -74,7 +81,7 @@ local function drawGame()
 end
 
 function lava.load()
-    lava.draw.setFps(24)
+    lava.window.setTitle("Pong")
 end
 
 function lava.frame()
