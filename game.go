@@ -27,8 +27,8 @@ func (g *game) close() {
 	g.lua.Close()
 }
 
-func (g *game) run() error {
-	rl.SetConfigFlags(rl.FlagVsyncHint)
+func (g *game) run(showFps bool) error {
+	// rl.SetConfigFlags(rl.FlagVsyncHint)
 	rl.InitWindow(640, 360, "Lava App")
 	defer rl.CloseWindow()
 
@@ -36,7 +36,7 @@ func (g *game) run() error {
 		return err
 	}
 
-	return g.gameLoop()
+	return g.gameLoop(showFps)
 }
 
 func (g *game) initializeLuaScript() error {
@@ -52,12 +52,18 @@ func (g *game) initializeLuaScript() error {
 	return nil
 }
 
-func (g *game) gameLoop() error {
+func (g *game) gameLoop(showFps bool) error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
+
 		if err := g.lua.DoString("lava.frame()"); err != nil {
 			return fmt.Errorf("failed to execute frame(): %w", err)
 		}
+
+		if showFps {
+			rl.DrawText(fmt.Sprintf("%d", rl.GetFPS()), 16, 16, 20, rl.Green)
+		}
+
 		rl.EndDrawing()
 	}
 	return nil
