@@ -7,26 +7,23 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func createDrawFunctions(state *lua.LState) {
-	draw := state.NewTable()
+func createStdlib(state *lua.LState) {
+	stdlib := state.NewTable()
+	state.SetGlobal("lava", stdlib)
 
+	draw := state.NewTable()
+	stdlib.RawSetString("draw", draw)
 	draw.RawSetString("clear", state.NewFunction(drawClear))
 	draw.RawSetString("text", state.NewFunction(drawText))
 	draw.RawSetString("rect", state.NewFunction(drawRect))
 	draw.RawSetString("setFps", state.NewFunction(drawSetFps))
 
-	state.SetGlobal("draw", draw)
-}
-
-func createInputFunctions(state *lua.LState) {
 	input := state.NewTable()
-
+	stdlib.RawSetString("input", input)
 	input.RawSetString("isKeyPressed", state.NewFunction(isKeyPressed))
 	input.RawSetString("isKeyDown", state.NewFunction(isKeyDown))
 	input.RawSetString("isKeyReleased", state.NewFunction(isKeyReleased))
 	input.RawSetString("isKeyUp", state.NewFunction(isKeyUp))
-
-	state.SetGlobal("input", input)
 }
 
 func drawClear(state *lua.LState) int {

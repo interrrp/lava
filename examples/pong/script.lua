@@ -24,16 +24,16 @@ local function resetBall()
 end
 
 local function movePaddles()
-    if input.isKeyDown(KEYS.W) and gameState.player1.y > 0 then
+    if lava.input.isKeyDown(KEYS.W) and gameState.player1.y > 0 then
         gameState.player1.y = gameState.player1.y - 5
     end
-    if input.isKeyDown(KEYS.S) and gameState.player1.y < 280 then
+    if lava.input.isKeyDown(KEYS.S) and gameState.player1.y < 280 then
         gameState.player1.y = gameState.player1.y + 5
     end
-    if input.isKeyDown(KEYS.UP) and gameState.player2.y > 0 then
+    if lava.input.isKeyDown(KEYS.UP) and gameState.player2.y > 0 then
         gameState.player2.y = gameState.player2.y - 5
     end
-    if input.isKeyDown(KEYS.DOWN) and gameState.player2.y < 280 then
+    if lava.input.isKeyDown(KEYS.DOWN) and gameState.player2.y < 280 then
         gameState.player2.y = gameState.player2.y + 5
     end
 end
@@ -66,18 +66,18 @@ local function checkScore()
 end
 
 local function drawGame()
-    draw.clear(COLORS.BACKGROUND)
-    draw.rect(20, gameState.player1.y, 10, 80, COLORS.PADDLE)
-    draw.rect(610, gameState.player2.y, 10, 80, COLORS.PADDLE)
-    draw.rect(gameState.ball.x, gameState.ball.y, 10, 10, COLORS.BALL)
-    draw.text(gameState.player1.score .. " - " .. gameState.player2.score, 300, 20, 20, COLORS.TEXT)
+    lava.draw.clear(COLORS.BACKGROUND)
+    lava.draw.rect(20, gameState.player1.y, 10, 80, COLORS.PADDLE)
+    lava.draw.rect(610, gameState.player2.y, 10, 80, COLORS.PADDLE)
+    lava.draw.rect(gameState.ball.x, gameState.ball.y, 10, 10, COLORS.BALL)
+    lava.draw.text(gameState.player1.score .. " - " .. gameState.player2.score, 300, 20, 20, COLORS.TEXT)
 end
 
-function load()
-    draw.setFps(24)
+function lava.load()
+    lava.draw.setFps(24)
 end
 
-function frame()
+function lava.frame()
     movePaddles()
     moveBall()
     checkScore()

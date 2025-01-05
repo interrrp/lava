@@ -15,8 +15,7 @@ type game struct {
 
 func newGame(appDir string) game {
 	luaState := lua.NewState()
-	createDrawFunctions(luaState)
-	createInputFunctions(luaState)
+	createStdlib(luaState)
 
 	return game{
 		lua:    luaState,
@@ -46,7 +45,7 @@ func (g *game) initializeLuaScript() error {
 		return fmt.Errorf("failed to load script.lua: %w", err)
 	}
 
-	if err := g.lua.DoString("load()"); err != nil {
+	if err := g.lua.DoString("lava.load()"); err != nil {
 		return fmt.Errorf("failed to execute load(): %w", err)
 	}
 
@@ -56,7 +55,7 @@ func (g *game) initializeLuaScript() error {
 func (g *game) gameLoop() error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
-		if err := g.lua.DoString("frame()"); err != nil {
+		if err := g.lua.DoString("lava.frame()"); err != nil {
 			return fmt.Errorf("failed to execute frame(): %w", err)
 		}
 		rl.EndDrawing()
