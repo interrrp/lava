@@ -2,33 +2,25 @@ package main
 
 import (
 	"strconv"
+	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 	lua "github.com/yuin/gopher-lua"
 )
 
-func createApi(state *lua.LState) {
-	api := state.NewTable()
-	state.SetGlobal("lava", api)
+var api = map[string]lua.LGFunction{
+	"lava.window.setFps":    windowSetFps,
+	"lava.window.setTitle":  windowSetTitle,
+	"lava.window.deltaTime": windowDeltaTime,
 
-	window := state.NewTable()
-	api.RawSetString("window", window)
-	window.RawSetString("setFps", state.NewFunction(windowSetFps))
-	window.RawSetString("setTitle", state.NewFunction(windowSetTitle))
-	window.RawSetString("deltaTime", state.NewFunction(windowDeltaTime))
+	"lava.draw.clear": drawClear,
+	"lava.draw.text":  drawText,
+	"lava.draw.rect":  drawRect,
 
-	draw := state.NewTable()
-	api.RawSetString("draw", draw)
-	draw.RawSetString("clear", state.NewFunction(drawClear))
-	draw.RawSetString("text", state.NewFunction(drawText))
-	draw.RawSetString("rect", state.NewFunction(drawRect))
-
-	input := state.NewTable()
-	api.RawSetString("input", input)
-	input.RawSetString("isKeyPressed", state.NewFunction(isKeyPressed))
-	input.RawSetString("isKeyDown", state.NewFunction(isKeyDown))
-	input.RawSetString("isKeyReleased", state.NewFunction(isKeyReleased))
-	input.RawSetString("isKeyUp", state.NewFunction(isKeyUp))
+	"lava.input.isKeyPressed":  isKeyPressed,
+	"lava.input.isKeyDown":     isKeyDown,
+	"lava.input.isKeyReleased": isKeyReleased,
+	"lava.input.isKeyUp":       isKeyUp,
 }
 
 func windowSetFps(state *lua.LState) int {
@@ -110,4 +102,34 @@ func tableToColor(table *lua.LTable) rl.Color {
 	}
 
 	return rl.NewColor(uint8(values[0]), uint8(values[1]), uint8(values[2]), uint8(values[3]))
+}
+
+func createApi(state *lua.LState) {
+	for name, fn := range api {
+		parts := strings.Split(name, ".")
+		if len(parts) < 2 {
+			continue
+		}
+
+		// Create tables for each namespace level
+		table := state.GetGlobal(parts[0])
+		if table == lua.LNil {
+			table = state.NewTable()
+			state.SetGlobal(parts[0], table)
+		}
+
+		// Navigate through intermediate tables
+		current := table.(*lua.LTable)
+		for i := 1; i < len(parts)-1; i++ {
+			next := current.RawGetString(parts[i])
+			if next == lua.LNil {
+				next = state.NewTable()
+				current.RawSetString(parts[i], next)
+			}
+			current = next.(*lua.LTable)
+		}
+
+		// Set the function in the deepest table
+		current.RawSetString(parts[len(parts)-1], state.NewFunction(fn))
+	}
 }
