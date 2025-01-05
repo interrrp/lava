@@ -17,10 +17,10 @@ var api = map[string]lua.LGFunction{
 	"lava.draw.text":  drawText,
 	"lava.draw.rect":  drawRect,
 
-	"lava.input.isKeyPressed":  isKeyPressed,
-	"lava.input.isKeyDown":     isKeyDown,
-	"lava.input.isKeyReleased": isKeyReleased,
-	"lava.input.isKeyUp":       isKeyUp,
+	"lava.input.isKeyPressed":  inputIsKeyPressed,
+	"lava.input.isKeyDown":     inputIsKeyDown,
+	"lava.input.isKeyReleased": inputIsKeyReleased,
+	"lava.input.isKeyUp":       inputIsKeyUp,
 }
 
 func windowSetFps(state *lua.LState) int {
@@ -65,25 +65,25 @@ func windowDeltaTime(state *lua.LState) int {
 	return 1
 }
 
-func isKeyPressed(state *lua.LState) int {
+func inputIsKeyPressed(state *lua.LState) int {
 	key := state.ToInt(1)
 	state.Push(lua.LBool(rl.IsKeyPressed(int32(key))))
 	return 1
 }
 
-func isKeyDown(state *lua.LState) int {
+func inputIsKeyDown(state *lua.LState) int {
 	key := state.ToInt(1)
 	state.Push(lua.LBool(rl.IsKeyDown(int32(key))))
 	return 1
 }
 
-func isKeyReleased(state *lua.LState) int {
+func inputIsKeyReleased(state *lua.LState) int {
 	key := state.ToInt(1)
 	state.Push(lua.LBool(rl.IsKeyReleased(int32(key))))
 	return 1
 }
 
-func isKeyUp(state *lua.LState) int {
+func inputIsKeyUp(state *lua.LState) int {
 	key := state.ToInt(1)
 	state.Push(lua.LBool(rl.IsKeyUp(int32(key))))
 	return 1
