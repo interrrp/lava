@@ -9,17 +9,21 @@ import (
 )
 
 type game struct {
-	lua    *lua.LState
 	appDir string
+	lua    *lua.LState
+	api    *lua.LTable
 }
 
 func newGame(appDir string) game {
 	luaState := lua.NewState()
-	createApi(luaState)
+
+	api := createApi(luaState)
+	luaState.SetGlobal("lava", api)
 
 	return game{
-		lua:    luaState,
 		appDir: appDir,
+		lua:    luaState,
+		api:    api,
 	}
 }
 
@@ -45,7 +49,11 @@ func (g *game) initializeLuaScript() error {
 		return fmt.Errorf("failed to load script.lua: %w", err)
 	}
 
-	if err := g.lua.DoString("lava.load()"); err != nil {
+	loadFn := g.lua.GetField(g.api, "load")
+	if loadFn == lua.LNil {
+		return fmt.Errorf("load function not found")
+	}
+	if err := g.lua.CallByParam(lua.P{Fn: loadFn}); err != nil {
 		return fmt.Errorf("failed to execute load(): %w", err)
 	}
 
@@ -53,10 +61,15 @@ func (g *game) initializeLuaScript() error {
 }
 
 func (g *game) gameLoop(showFps bool) error {
+	frameFn := g.lua.GetField(g.api, "frame")
+	if frameFn == lua.LNil {
+		return fmt.Errorf("frame function not found")
+	}
+
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
-		if err := g.lua.DoString("lava.frame()"); err != nil {
+		if err := g.lua.CallByParam(lua.P{Fn: frameFn}); err != nil {
 			return fmt.Errorf("failed to execute frame(): %w", err)
 		}
 

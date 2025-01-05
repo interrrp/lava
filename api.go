@@ -9,18 +9,18 @@ import (
 )
 
 var api = map[string]lua.LGFunction{
-	"lava.window.setFps":    windowSetFps,
-	"lava.window.setTitle":  windowSetTitle,
-	"lava.window.deltaTime": windowDeltaTime,
+	"window.setFps":    windowSetFps,
+	"window.setTitle":  windowSetTitle,
+	"window.deltaTime": windowDeltaTime,
 
-	"lava.draw.clear": drawClear,
-	"lava.draw.text":  drawText,
-	"lava.draw.rect":  drawRect,
+	"draw.clear": drawClear,
+	"draw.text":  drawText,
+	"draw.rect":  drawRect,
 
-	"lava.input.isKeyPressed":  inputIsKeyPressed,
-	"lava.input.isKeyDown":     inputIsKeyDown,
-	"lava.input.isKeyReleased": inputIsKeyReleased,
-	"lava.input.isKeyUp":       inputIsKeyUp,
+	"input.isKeyPressed":  inputIsKeyPressed,
+	"input.isKeyDown":     inputIsKeyDown,
+	"input.isKeyReleased": inputIsKeyReleased,
+	"input.isKeyUp":       inputIsKeyUp,
 }
 
 func windowSetFps(state *lua.LState) int {
@@ -104,7 +104,9 @@ func tableToColor(table *lua.LTable) rl.Color {
 	return rl.NewColor(uint8(values[0]), uint8(values[1]), uint8(values[2]), uint8(values[3]))
 }
 
-func createApi(state *lua.LState) {
+func createApi(state *lua.LState) *lua.LTable {
+	apiTable := state.NewTable()
+
 	for name, fn := range api {
 		parts := strings.Split(name, ".")
 		if len(parts) < 2 {
@@ -112,24 +114,19 @@ func createApi(state *lua.LState) {
 		}
 
 		// Create tables for each namespace level
-		table := state.GetGlobal(parts[0])
-		if table == lua.LNil {
-			table = state.NewTable()
-			state.SetGlobal(parts[0], table)
-		}
-
-		// Navigate through intermediate tables
-		current := table.(*lua.LTable)
-		for i := 1; i < len(parts)-1; i++ {
-			next := current.RawGetString(parts[i])
+		table := apiTable
+		for i := 0; i < len(parts)-1; i++ {
+			next := table.RawGetString(parts[i])
 			if next == lua.LNil {
 				next = state.NewTable()
-				current.RawSetString(parts[i], next)
+				table.RawSetString(parts[i], next)
 			}
-			current = next.(*lua.LTable)
+			table = next.(*lua.LTable)
 		}
 
 		// Set the function in the deepest table
-		current.RawSetString(parts[len(parts)-1], state.NewFunction(fn))
+		table.RawSetString(parts[len(parts)-1], state.NewFunction(fn))
 	}
+
+	return apiTable
 }
